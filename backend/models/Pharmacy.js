@@ -6,6 +6,11 @@ const PharmacySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true,
+        minlength: 4
+    },
     localAddress: {
         type: String,
         required: true,

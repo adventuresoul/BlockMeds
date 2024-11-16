@@ -47,6 +47,11 @@ const DoctorSchema = new mongoose.Schema({
             message: "Invalid email format"
         }
     },
+    password: {
+        type: String,
+        required: true,
+        minlength: 4
+    },
     profileUrl: {   // aws s3 link to image
         type: String,
         required: false

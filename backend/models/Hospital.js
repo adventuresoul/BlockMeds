@@ -6,6 +6,11 @@ const HospitalSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true,
+        minlength: 4
+    },
     type: {
         type: String,
         enum: ["government", "private"],

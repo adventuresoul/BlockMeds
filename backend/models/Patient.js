@@ -48,6 +48,11 @@ const patientSchema = new mongoose.Schema({
             message: "Invalid email format"
         }
     },
+    password: {
+        type: String,
+        required: true,
+        minlength: 4
+    },
     profileUrl: {   // aws s3 link to image
         type: String,
         required: false
@@ -87,7 +92,7 @@ const patientSchema = new mongoose.Schema({
             message: "All chronic conditions must be non-empty strings"
         }
     },
-    currentMedications: {
+    currentMedications: {   // will get updated once the contract if fulfiled, doctor sees this only and prescribes
         type: [String],
         default: [],
         validate: {
@@ -95,6 +100,18 @@ const patientSchema = new mongoose.Schema({
                 return Array.isArray(value) && value.every(medication => typeof medication === "string" && medication.trim().length > 0);
             },
             message: "All current medications must be non-empty strings"
+        }
+    },
+    prescriptionHistory: {
+        type: [String],  // Array of strings
+        required: false,
+        default: [],
+        validate: {
+            validator: function(value) {
+                // Ensure each time value is an array and each element is a valid transaction ID (Ethereum transaction hash)
+                return Array.isArray(value) && value.every(transactionId => typeof transactionId === "string" && /^(0x)?[0-9a-fA-F]{64}$/.test(transactionId));
+            },
+            message: "Invalid transaction ID"
         }
     },
     medicalHistory: {

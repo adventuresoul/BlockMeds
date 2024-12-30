@@ -1,16 +1,16 @@
-// Auth controller
 const asyncHandler = require('express-async-handler');
+const bcrypt = require('bcrypt');
 
-// Importing Patient Model
+// Importing Models
 const Patient = require("../models/PatientModel");
-// Importing Doctor Model
 const Doctor = require("../models/DoctorModel");
-// Importing Pharmacist Model
 const Pharmacist = require("../models/PharmacistModel");
 
+// Importing generate token method
+const { generateToken } = require("../Utils/tokenGenerator");
 
 // ######################## Endpoints ######################## 
-// simple test route
+// Simple test route
 const authTestRoute = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'auth Test Route Working!' });
 });
@@ -19,6 +19,11 @@ const authTestRoute = asyncHandler(async (req, res) => {
 const loginRoute = asyncHandler(async (req, res) => {
     // Get user_id, email, and password from req.body
     const { id, email, password } = req.body;
+
+    console.log(id, email, password);
+    if (!email || !password || id == null) {
+        return res.status(400).send('Missing required fields');
+    }
 
     try {
         let user = null;
@@ -46,7 +51,7 @@ const loginRoute = asyncHandler(async (req, res) => {
         // Check if password matches
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).send('Invalid credentials');
+            return res.status(401).send('Invalid credentials');
         }
 
         // Generate token
@@ -57,6 +62,5 @@ const loginRoute = asyncHandler(async (req, res) => {
         res.status(500).send('Error logging in: ' + error.message);
     }
 });
-
 
 module.exports = { authTestRoute, loginRoute };

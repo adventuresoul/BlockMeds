@@ -31,15 +31,17 @@ app.use(express.json());
 const connectToMongoDB = require("./models/db_configuration");
 connectToMongoDB();
 
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  //console.log("Request Headers:", req.headers);
+  //console.log("Request Body:", req.body); // Log incoming body
+  next();
+});
+
 // Router linking
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
-// Error handling middleware (optional but recommended)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
 
 // Start the server
 const PORT = process.env.PORT || 3001;

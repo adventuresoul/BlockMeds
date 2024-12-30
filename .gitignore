@@ -1,3 +1,5 @@
 frontend/BlockMeds-frontend/node_modules
-backend/node_modules
-backend/.env
+backend/gatewayService/node_modules
+backend/gatewayService/.env
+backend/blockchainService/node_modules
+backend/authenticationService/node_modules

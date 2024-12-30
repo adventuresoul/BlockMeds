@@ -1,17 +1,16 @@
 {
-  "name": "backend",
+  "name": "blockchainservice",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "mongodb": "^6.10.0",
-    "mongoose": "^8.8.1"
+    "fs": "^0.0.1-security",
+    "web3": "^1.10.4"
   }
 }

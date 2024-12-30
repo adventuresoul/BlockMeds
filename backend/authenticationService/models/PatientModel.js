@@ -28,7 +28,7 @@ const patientSchema = new mongoose.Schema({
         enum: ["male", "female"],
         required: true
     },
-    contactNumer: {
+    contactNumber: {
         type: String,
         required: true,
         validate: {
@@ -92,7 +92,7 @@ const patientSchema = new mongoose.Schema({
             message: "All chronic conditions must be non-empty strings"
         }
     },
-    currentMedications: {   // will get updated once the contract if fulfiled, doctor sees this only and prescribes
+    currentMedications: {   // will get updated once the contract if fulfiled, doctor takes this reference and prescribes, not requried at time of registration
         type: [String],
         default: [],
         validate: {
@@ -102,7 +102,7 @@ const patientSchema = new mongoose.Schema({
             message: "All current medications must be non-empty strings"
         }
     },
-    prescriptionHistory: {
+    prescriptionHistory: {  // not required at time of registration
         type: [String],  // Array of strings
         required: false,
         default: [],

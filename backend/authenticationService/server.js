@@ -2,6 +2,10 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config(); // Load environment variables
 
+// swagger autogen
+const swaggerUi = require('swagger-ui-express');
+const swaggerFile = require('./swagger_output.json');
+
 
 const app = express();
 
@@ -40,7 +44,8 @@ app.use((req, res, next) => {
 
 // Router linking
 const authRoutes = require("./routes/authRoutes");
-app.use("/auth", authRoutes);
+app.use("/", authRoutes);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 
 // Start the server

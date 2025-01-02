@@ -27,7 +27,7 @@ const DoctorSchema = new mongoose.Schema({
         enum: ["male", "female"],
         required: true
     },
-    contactNumer: {
+    contactNumber: {
         type: String,
         required: true,
         validate: {
@@ -55,15 +55,6 @@ const DoctorSchema = new mongoose.Schema({
     profileUrl: {   // aws s3 link to image
         type: String,
         required: false
-    },
-    ethereumPublicKey: {
-        type: String, 
-        required: false,
-        validate: {
-            validator: function(value) {
-                return /^(0x)?[0-9a-fA-F]{40}$/.test(value); // Ethereum address regex
-            }
-        }
     },
     specialization: {
         type: [String],

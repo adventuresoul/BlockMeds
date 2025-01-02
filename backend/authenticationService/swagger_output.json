@@ -1,0 +1,254 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "BlockMeds Authentication Service",
+    "description": "API for managing patient, doctor, and pharmacist registrations and login.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:5001",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/test": {
+      "get": {
+        "summary": "Test the API",
+        "description": "A simple test route to verify the API is working.",
+        "responses": {
+          "200": {
+            "description": "API is working.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "auth Test Route Working!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login to the system",
+        "description": "Authenticate a user based on email, password, and user type (Patient, Doctor, Pharmacist).",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "User type ID (0: Patient, 1: Doctor, 2: Pharmacist).",
+                  "example": 0
+                },
+                "email": {
+                  "type": "string",
+                  "description": "User's email address.",
+                  "example": "user@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "User's password.",
+                  "example": "password123"
+                }
+              },
+              "required": ["id", "email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful. Returns a token.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "description": "JWT token for authentication."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid fields."
+          },
+          "401": {
+            "description": "Invalid credentials."
+          },
+          "500": {
+            "description": "Server error."
+          }
+        }
+      }
+    },
+    "/register/patient": {
+      "post": {
+        "summary": "Register a new patient",
+        "description": "Create a new patient record in the system.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": { "type": "string", "example": "John" },
+                "lastName": { "type": "string", "example": "Doe" },
+                "dateOfBirth": { "type": "string", "format": "date", "example": "1990-01-01" },
+                "gender": { "type": "string", "enum": ["male", "female"], "example": "male" },
+                "contactNumber": { "type": "string", "example": "1234567890" },
+                "email": { "type": "string", "example": "john.doe@example.com" },
+                "password": { "type": "string", "example": "password123" },
+                "bloodType": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"], "example": "O+" },
+                "profileUrl": { "type": "string", "example": "http://example.com/profile.jpg" },
+                "emergencyContactNumber": { "type": "string", "example": "9876543210" },
+                "allergies": { "type": "array", "items": { "type": "string" }, "example": ["Peanuts", "Dust"] },
+                "chronicConditions": { "type": "array", "items": { "type": "string" }, "example": ["Diabetes"] },
+                "insuranceProvider": { "type": "string", "example": "ABC Insurance" },
+                "insurancePolicyNumber": { "type": "string", "example": "XYZ123456789" }
+              },
+              "required": ["firstName", "lastName", "dateOfBirth", "gender", "contactNumber", "email", "password", "bloodType"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Patient registered successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Patient registered successfully" },
+                "patient": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "60c72b3f9f1b2c001c8e4d72" },
+                    "firstName": { "type": "string", "example": "John" },
+                    "lastName": { "type": "string", "example": "Doe" },
+                    "email": { "type": "string", "example": "john.doe@example.com" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required fields or validation errors."
+          },
+          "500": {
+            "description": "Server error."
+          }
+        }
+      }
+    },
+    "/register/doctor": {
+      "post": {
+        "summary": "Register a new doctor",
+        "description": "Create a new doctor record in the system.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": { "type": "string", "example": "Alice" },
+                "lastName": { "type": "string", "example": "Smith" },
+                "specialization": { "type": "string", "example": "Cardiology" },
+                "licenseNumber": { "type": "string", "example": "ABC12345" },
+                "contactNumber": { "type": "string", "example": "1234567890" },
+                "email": { "type": "string", "example": "alice.smith@example.com" },
+                "password": { "type": "string", "example": "securepass" },
+                "yearsOfExperience": { "type": "integer", "example": 10 }
+              },
+              "required": ["firstName", "lastName", "specialization", "licenseNumber", "contactNumber", "email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Doctor registered successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Doctor registered successfully" },
+                "doctor": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "60c72b3f9f1b2c001c8e4d73" },
+                    "firstName": { "type": "string", "example": "Alice" },
+                    "lastName": { "type": "string", "example": "Smith" },
+                    "email": { "type": "string", "example": "alice.smith@example.com" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required fields or validation errors."
+          },
+          "500": {
+            "description": "Server error."
+          }
+        }
+      }
+    },
+    "/register/pharmacist": {
+      "post": {
+        "summary": "Register a new pharmacist",
+        "description": "Create a new pharmacist record in the system.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": { "type": "string", "example": "Bob" },
+                "lastName": { "type": "string", "example": "Johnson" },
+                "licenseNumber": { "type": "string", "example": "XYZ67890" },
+                "contactNumber": { "type": "string", "example": "0987654321" },
+                "email": { "type": "string", "example": "bob.johnson@example.com" },
+                "password": { "type": "string", "example": "mypassword" },
+                "yearsOfExperience": { "type": "integer", "example": 5 }
+              },
+              "required": ["firstName", "lastName", "licenseNumber", "contactNumber", "email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pharmacist registered successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Pharmacist registered successfully" },
+                "pharmacist": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "60c72b3f9f1b2c001c8e4d74" },
+                    "firstName": { "type": "string", "example": "Bob" },
+                    "lastName": { "type": "string", "example": "Johnson" },
+                    "email": { "type": "string", "example": "bob.johnson@example.com" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required fields or validation errors."
+          },
+          "500": {
+            "description": "Server error."
+          }
+        }
+      }
+    }
+  }
+}

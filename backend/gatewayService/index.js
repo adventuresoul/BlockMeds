@@ -37,7 +37,7 @@ const pharmacistRouter = require('./routes/PharmacistRoutes');
 const hospitalRouter = require('./routes/HospitalRoutes');
 const pharmacyRouter = require('./routes/PharmacyRoutes');
 const regulatoryBodyRouter = require('./routes/RegulatoryBodyRoutes');
-app.use('/user', patientRouter);
+app.use('/patient', patientRouter);
 app.use('/doctor', doctorRouter);
 app.use('/pharmacist', pharmacistRouter);
 app.use('/hospital', hospitalRouter);

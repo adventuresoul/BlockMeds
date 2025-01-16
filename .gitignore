@@ -2,6 +2,7 @@ backend/gatewayService/node_modules
 backend/gatewayService/.env
 backend/blockchainService/node_modules
 backend/blockchainService/.env
+backend/blockchainService/MedicalPrescription.json
 backend/authenticationService/node_modules
 backend/authenticationService/.env
 smartContract/node_modules

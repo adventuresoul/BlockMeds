@@ -1,0 +1,322 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "BlockMeds API",
+    "description": "BlockMeds contract service API",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/prescriptionCount": {
+      "get": {
+        "summary": "Get Prescription Count",
+        "description": "Retrieve the total number of prescriptions.",
+        "responses": {
+          "200": {
+            "description": "Prescription count retrieved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "example": 42
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch prescription count."
+          }
+        }
+      }
+    },
+    "/createPrescription": {
+      "post": {
+        "summary": "Create a Prescription",
+        "description": "Create a new prescription on the blockchain.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "doctorAddress",
+                "patientId",
+                "drug",
+                "dosage",
+                "quantity",
+                "justification",
+                "privateKey"
+              ],
+              "properties": {
+                "doctorAddress": {
+                  "type": "string",
+                  "example": "0xDoctorAddress"
+                },
+                "patientId": {
+                  "type": "string",
+                  "example": "12345"
+                },
+                "drug": {
+                  "type": "string",
+                  "example": "Paracetamol"
+                },
+                "dosage": {
+                  "type": "string",
+                  "example": "500mg"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "example": 10
+                },
+                "emergency": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "justification": {
+                  "type": "string",
+                  "example": "Critical patient condition."
+                },
+                "privateKey": {
+                  "type": "string",
+                  "example": "PrivateKeyHere"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prescription created successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "transactionHash": {
+                  "type": "string",
+                  "example": "0xTransactionHash"
+                },
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or business logic error."
+          },
+          "500": {
+            "description": "Failed to create prescription."
+          }
+        }
+      }
+    },
+    "/fulfillPrescription": {
+      "post": {
+        "summary": "Fulfill a Prescription",
+        "description": "Mark a prescription as fulfilled.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["prescriptionId", "pharmacistAddress", "privateKey"],
+              "properties": {
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "1"
+                },
+                "pharmacistAddress": {
+                  "type": "string",
+                  "example": "0xPharmacistAddress"
+                },
+                "privateKey": {
+                  "type": "string",
+                  "example": "PrivateKeyHere"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prescription fulfilled successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "transactionHash": {
+                  "type": "string",
+                  "example": "0xTransactionHash"
+                },
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input."
+          },
+          "409": {
+            "description": "Prescription already fulfilled."
+          },
+          "500": {
+            "description": "Failed to fulfill prescription."
+          }
+        }
+      }
+    },
+    "/setSafeLimit": {
+      "post": {
+        "summary": "Set Safe Limit",
+        "description": "Set the safe limit for a drug.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["drug", "safeLimit", "privateKey"],
+              "properties": {
+                "drug": {
+                  "type": "string",
+                  "example": "Paracetamol"
+                },
+                "safeLimit": {
+                  "type": "integer",
+                  "example": 100
+                },
+                "privateKey": {
+                  "type": "string",
+                  "example": "PrivateKeyHere"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Safe limit set successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input."
+          },
+          "500": {
+            "description": "Failed to set safe limit."
+          }
+        }
+      }
+    },
+    "/getSafeLimit/{drug}": {
+      "get": {
+        "summary": "Get Safe Limit",
+        "description": "Retrieve the safe limit for a specific drug.",
+        "parameters": [
+          {
+            "name": "drug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "example": "Paracetamol"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Safe limit retrieved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "drug": {
+                  "type": "string",
+                  "example": "Paracetamol"
+                },
+                "safeLimit": {
+                  "type": "integer",
+                  "example": 100
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Drug not found."
+          },
+          "500": {
+            "description": "Failed to retrieve safe limit."
+          }
+        }
+      }
+    },
+    "/resolveFlaggedPrescription": {
+      "post": {
+        "summary": "Resolve Flagged Prescription",
+        "description": "Resolve a flagged prescription.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["prescriptionId", "privateKey"],
+              "properties": {
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "1"
+                },
+                "privateKey": {
+                  "type": "string",
+                  "example": "PrivateKeyHere"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flagged prescription resolved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Prescription not found."
+          },
+          "500": {
+            "description": "Failed to resolve flagged prescription."
+          }
+        }
+      }
+    }
+  }
+}

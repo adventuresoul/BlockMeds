@@ -52,47 +52,26 @@ const DoctorSchema = new mongoose.Schema({
         required: true,
         minlength: 4
     },
+    ethereumWalletAddress: {
+        type: String,
+        required: true,
+    },
     profileUrl: {   // aws s3 link to image
         type: String,
         required: false
     },
     specialization: {
-        type: [String],
-        required: true
-    },
-    experianceYears: {
-        type: Number,
+        type: String,
         required: true
     },
     medicalLicenseId: {
         type: String,
         required: true
     },
-    medicalLicenseIssuer: {
-        type: String,
-        required: true
-    },
     medicalLicenseCertificateUrl: { // s3 link to certificate
         type: String,
-        required: true
-    },
-    previousHospitals: {
-        type: [String],
-        default: [],
-        validate: {
-            validator: function(value) {
-                return Array.isArray(value) && value.every(hospital => typeof hospital === "string" && hospital.trim().length > 0);
-            },
-            message: "All hospital must be non-empty strings"
-        }
-    },
-    currentHospitalCode: {
-        type: String,
-        required: true
-    },
-    consultationFee: {
-        type: Number,
-        required: true
+        required: false,
+        default: ''
     }
 }, { timestamps: true }
 );

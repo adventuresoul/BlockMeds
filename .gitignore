@@ -1,7 +1,8 @@
-frontend/BlockMeds-frontend/node_modules
 backend/gatewayService/node_modules
 backend/gatewayService/.env
 backend/blockchainService/node_modules
 backend/blockchainService/.env
 backend/authenticationService/node_modules
 backend/authenticationService/.env
+smartContract/node_modules
+smartContract/build/*

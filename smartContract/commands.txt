@@ -1,0 +1,4 @@
+let instance = await MedicalPrescription.deployed();
+let regulatoryAuthorityAddress = await instance.regulatoryAuthority();
+let safeLimitExample = await instance.setSafeLimit('Paracetamol', 500, { from: '0xB7e5097918103Ab931B176bd31E0BdBb734B0a62' });
+await instance.createPrescription(123, 'Paracetamol', 400, 30, false, 'Pain relief', { from: '0xYourDoctorAddress' });

@@ -22,6 +22,7 @@ const loggermiddleware = (req, res, next) => {
 // Middleware to parse URL-encoded data and JSON data
 app.use(loggermiddleware);
 app.use(cors());
+app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
@@ -34,15 +35,16 @@ connectToMongoDB();
 const patientRouter = require('./routes/PatientRoutes');
 const doctorRouter = require('./routes/DoctorRoutes');
 const pharmacistRouter = require('./routes/PharmacistRoutes');
-const hospitalRouter = require('./routes/HospitalRoutes');
-const pharmacyRouter = require('./routes/PharmacyRoutes');
 const regulatoryBodyRouter = require('./routes/RegulatoryBodyRoutes');
 app.use('/patient', patientRouter);
 app.use('/doctor', doctorRouter);
 app.use('/pharmacist', pharmacistRouter);
-app.use('/hospital', hospitalRouter);
-app.use('/pharmacy', pharmacyRouter);
 app.use('/regulatoryBody', regulatoryBodyRouter);
+
+app.use((req, res, next) => {
+  console.log(`Incoming request from ${req.ip} - ${req.method} ${req.url}`);
+  next();
+});
 
 // Error handling middleware 
 app.use((err, req, res, next) => {
@@ -53,6 +55,6 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server started on port ${PORT}`);
 });

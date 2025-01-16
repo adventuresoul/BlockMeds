@@ -56,24 +56,10 @@ const PharmacistSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    ethereumPublicKey: {
-        type: String, 
-        required: false,
-        validate: {
-            validator: function(value) {
-                return /^(0x)?[0-9a-fA-F]{40}$/.test(value); // Ethereum address regex
-            }
-        }
-    },
-    medicalLicenseId: {
+    pharmacyLicenseId: {
         type: String,
         required: true
     },
-    currentPharmacyCode: {
-        type: String,
-        required: true
-    },
-
 }, { timestamps: true }
 ); 
 

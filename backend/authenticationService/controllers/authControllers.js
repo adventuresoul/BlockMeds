@@ -28,21 +28,13 @@ const registerPatient = asyncHandler(async (req, res) => {
             email,
             password,
             profileUrl,
-            emergencyContactNumber,
-            bloodType,
-            allergies = [],
-            chronicConditions = [],
-            currentMedications = [],
-            prescriptionHistory = [],
-            medicalHistory = [],
-            insuranceProvider,
-            insurancePolicyNumber,
+            prescriptionHistory = []
         } = req.body;
 
-        console.log(firstName, lastName, dateOfBirth, gender, contactNumber, email, password,  bloodType);
+        console.log(firstName, lastName, dateOfBirth, gender, contactNumber, email, password);
         
         // Checking for required fields
-        if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumber || !bloodType || !email || !password) {
+        if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumber || !email || !password) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
@@ -54,16 +46,13 @@ const registerPatient = asyncHandler(async (req, res) => {
             return res.status(400).json({ error: "Invalid gender. Must be 'male' or 'female'." });
         }
 
-        // Validating blood type
-        const validBloodTypes = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
-        if (!validBloodTypes.includes(bloodType)) {
-            return res.status(400).json({ error: `Invalid blood type. Must be one of: ${validBloodTypes.join(", ")}` });
-        }
-
         // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
+        
+        // create new uniqueId based on phone number 
+        const uniqueId =  (contactNumber + firstName.length) % 100000;
+        
         // Create a new Patient instance
         const newPatient = new Patient({
             firstName,
@@ -71,18 +60,11 @@ const registerPatient = asyncHandler(async (req, res) => {
             dateOfBirth,
             gender,
             contactNumber,
+            uniqueId,
             email: email ? email.toLowerCase() : undefined,
             password: hashedPassword,
             profileUrl,
-            emergencyContactNumber,
-            bloodType,
-            allergies,
-            chronicConditions,
-            currentMedications,
             prescriptionHistory,
-            medicalHistory,
-            insuranceProvider,
-            insurancePolicyNumber,
         });
 
         // Save the patient to the database
@@ -92,7 +74,7 @@ const registerPatient = asyncHandler(async (req, res) => {
         res.status(201).json({
             message: "Patient registered successfully",
             patient: {
-                id: savedPatient._id,
+                uniqueid: savedPatient.uniqueId,
                 firstName: savedPatient.firstName,
                 lastName: savedPatient.lastName,
                 email: savedPatient.email,
@@ -119,20 +101,15 @@ const registerDoctor = asyncHandler(async (req, res) => {
             contactNumber,
             email,
             password,
+            ethereumWalletAddress,
             profileUrl,
-            ethereumPublicKey,
-            specialization = [],
-            experianceYears,
+            specialization,
             medicalLicenseId,
-            medicalLicenseIssuer,
             medicalLicenseCertificateUrl,
-            previousHospitals = [],
-            currentHospitalCode,
-            consultationFee
         } = req.body;
 
         // Checking for required fields
-        if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumber || !email || !password || !specialization || !experianceYears || !medicalLicenseId || !medicalLicenseIssuer || !medicalLicenseCertificateUrl || !currentHospitalCode || !consultationFee) {
+        if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumber || !email || !password || !ethereumWalletAddress, !specialization || !medicalLicenseId) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
@@ -141,14 +118,13 @@ const registerDoctor = asyncHandler(async (req, res) => {
             return res.status(400).json({ error: "Invalid gender. Must be 'male' or 'female'." });
         }
 
-        // Validating Ethereum public key (if provided)
-        if (ethereumPublicKey && !/^(0x)?[0-9a-fA-F]{40}$/.test(ethereumPublicKey)) {
-            return res.status(400).json({ error: "Invalid Ethereum public key." });
-        }
-
         // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Hash the ethereumWalletAddress
+        const salt2 = await bcrypt.genSalt(10);
+        const hashedEthereumWalletAddress = await bcrypt.hash(ethereumWalletAddress, salt2);    
 
         // Create a new Doctor instance
         const newDoctor = new Doctor({
@@ -159,16 +135,11 @@ const registerDoctor = asyncHandler(async (req, res) => {
             contactNumber,
             email: email ? email.toLowerCase() : undefined,
             password: hashedPassword,
+            ethereumWalletAddress: hashedEthereumWalletAddress,
             profileUrl,
-            ethereumPublicKey,
             specialization,
-            experianceYears,
             medicalLicenseId,
-            medicalLicenseIssuer,
             medicalLicenseCertificateUrl,
-            previousHospitals,
-            currentHospitalCode,
-            consultationFee
         });
 
         // Save the doctor to the database
@@ -178,7 +149,6 @@ const registerDoctor = asyncHandler(async (req, res) => {
         res.status(201).json({
             message: "Doctor registered successfully",
             doctor: {
-                id: savedDoctor._id,
                 firstName: savedDoctor.firstName,
                 lastName: savedDoctor.lastName,
                 email: savedDoctor.email
@@ -205,16 +175,15 @@ const registerPharmacist = asyncHandler(async (req, res) => {
             contactNumer,
             email,
             password,
+            ethereumWalletAddress,
             profileUrl,
-            ethereumPublicKey,
             pharmacyLicenseId,
-            currentPharmacyCode,
         } = req.body;
 
         console.log(firstName, lastName, dateOfBirth, gender, contactNumer, email, password);
 
         // Checking for required fields
-        if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumer || !email || !password || !pharmacyLicenseId || !currentPharmacyCode) {
+        if (!firstName || !lastName || !dateOfBirth || !gender || !contactNumer || !email || !password || !ethereumWalletAddress || !pharmacyLicenseId) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
@@ -223,14 +192,13 @@ const registerPharmacist = asyncHandler(async (req, res) => {
             return res.status(400).json({ error: "Invalid gender. Must be 'male' or 'female'." });
         }
 
-        // Validating Ethereum public key (if provided)
-        if (ethereumPublicKey && !/^(0x)?[0-9a-fA-F]{40}$/.test(ethereumPublicKey)) {
-            return res.status(400).json({ error: "Invalid Ethereum public key." });
-        }
-
         // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Hash the ethereumWalletAddress
+        const salt2 = await bcrypt.genSalt(10);
+        const hashedEthereumWalletAddress = await bcrypt.hash(ethereumWalletAddress, salt2);
 
         // Create a new Pharmacist instance
         const newPharmacist = new Pharmacist({
@@ -241,10 +209,9 @@ const registerPharmacist = asyncHandler(async (req, res) => {
             contactNumer,
             email: email ? email.toLowerCase() : undefined,
             password: hashedPassword,
+            ethereumWalletAddress: hashedEthereumWalletAddress,
             profileUrl,
-            ethereumPublicKey,
             pharmacyLicenseId,
-            currentPharmacyCode,
         });
 
         // Save the pharmacist to the database
@@ -254,7 +221,6 @@ const registerPharmacist = asyncHandler(async (req, res) => {
         res.status(201).json({
             message: "Pharmacist registered successfully",
             pharmacist: {
-                id: savedPharmacist._id,
                 firstName: savedPharmacist.firstName,
                 lastName: savedPharmacist.lastName,
                 email: savedPharmacist.email,

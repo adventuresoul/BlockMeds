@@ -60,11 +60,6 @@ const PharmacistSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    currentPharmacyCode: {
-        type: String,
-        required: true
-    },
-
 }, { timestamps: true }
 ); 
 

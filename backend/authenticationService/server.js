@@ -27,6 +27,7 @@ const loggermiddleware = (req, res, next) => {
 // Middleware to parse URL-encoded data and JSON data
 app.use(loggermiddleware);
 app.use(cors());
+app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
@@ -47,9 +48,8 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/", authRoutes);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
-
 // Start the server
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server started on port ${PORT}`);
 });

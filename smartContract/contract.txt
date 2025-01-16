@@ -1,0 +1,150 @@
+pragma solidity ^0.8.0;
+
+contract MedicalPrescription {
+    uint public prescriptionCount = 0;
+
+    struct Prescription {
+        uint id;
+        address doctor;
+        uint16 patientId;
+        string drug;
+        uint dosage;
+        uint quantity;
+        string direction;
+        string comments;
+        bool fulfilled;
+        address pharmacist; // Address of the pharmacist fulfilling the prescription
+        bool emergency;
+        string justification;
+        bool flagged;
+        uint timestamp;
+    }
+
+    mapping(uint => Prescription) public prescriptions;
+    mapping(string => uint) public safeLimits; // Safe dosage limits for drugs
+    address public regulatoryAuthority;
+
+    event PrescriptionCreated(
+        uint id,
+        address doctor,
+        uint16 patientId,
+        string drug,
+        uint dosage,
+        uint quantity,
+        string direction,
+        string comments,
+        bool fulfilled,
+        bool emergency,
+        uint timestamp
+    );
+
+    event PrescriptionFulfilled(uint id, address pharmacist);
+
+    event PrescriptionFlagged(uint id, string reason);
+    event PrescriptionResolved(uint id, string resolution);
+
+    constructor(address _regulatoryAuthority) {
+        regulatoryAuthority = _regulatoryAuthority;
+    }
+
+    function setSafeLimit(string memory _drug, uint _limit) public {
+        require(msg.sender == regulatoryAuthority, "Only regulatory authority can set safe limits.");
+        safeLimits[_drug] = _limit;
+    }
+
+    function createPrescription(
+        uint16 _patientId,
+        string memory _drug,
+        uint _dosage,
+        uint _quantity,
+        string memory _direction,
+        string memory _comments,
+        bool _emergency,
+        string memory _justification
+    ) public {
+        prescriptionCount++;
+
+        bool flag = false;
+        if (_emergency) {
+            // Flag if emergency prescription exceeds safe limits
+            if (safeLimits[_drug] > 0 && _dosage > safeLimits[_drug]) {
+                flag = true;
+                emit PrescriptionFlagged(prescriptionCount, "Emergency prescription exceeds safe limit.");
+            }
+        } else {
+            require(safeLimits[_drug] > 0, "Safe limit for this drug is not set.");
+            require(_dosage <= safeLimits[_drug], "Dosage exceeds safe limit.");
+        }
+
+        prescriptions[prescriptionCount] = Prescription(
+            prescriptionCount,
+            msg.sender,
+            _patientId,
+            _drug,
+            _dosage,
+            _quantity,
+            _direction,
+            _comments,
+            false,
+            address(0), // No pharmacist initially
+            _emergency,
+            _justification,
+            flag,
+            block.timestamp
+        );
+
+        emit PrescriptionCreated(
+            prescriptionCount,
+            msg.sender,
+            _patientId,
+            _drug,
+            _dosage,
+            _quantity,
+            _direction,
+            _comments,
+            false,
+            _emergency,
+            block.timestamp
+        );
+    }
+
+    function fulfillPrescription(uint _id) public {
+        Prescription storage prescription = prescriptions[_id];
+        require(!prescription.fulfilled, "Prescription is already fulfilled.");
+        
+        prescription.fulfilled = true;
+        prescription.pharmacist = msg.sender;
+
+        emit PrescriptionFulfilled(_id, msg.sender);
+    }
+
+    function resolveFlag(uint _id, string memory _resolution) public {
+        require(msg.sender == regulatoryAuthority, "Only regulatory authority can resolve flags.");
+        require(prescriptions[_id].flagged, "Prescription is not flagged.");
+
+        prescriptions[_id].flagged = false;
+        emit PrescriptionResolved(_id, _resolution);
+    }
+
+    function viewPrescription(uint _id) public view returns (
+        uint, address, uint16, string memory, uint, uint, string memory, string memory, bool, address, bool, string memory, bool, uint
+    ) {
+        Prescription memory prescription = prescriptions[_id];
+        return (
+            prescription.id,
+            prescription.doctor,
+            prescription.patientId,
+            prescription.drug,
+            prescription.dosage,
+            prescription.quantity,
+            prescription.direction,
+            prescription.comments,
+            prescription.fulfilled,
+            prescription.pharmacist,
+            prescription.emergency,
+            prescription.justification,
+            prescription.flagged,
+            prescription.timestamp
+        );
+    }
+}

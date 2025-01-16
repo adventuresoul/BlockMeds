@@ -1,15 +1,13 @@
 const express = require('express');
-const { patientTestRoute, registerPatient, loginPatient } = require('../controllers/PatientControllers');
+const { patientTestRoute, viewPatient } = require('../controllers/PatientControllers');
+const { verifyToken } = require('../Utils/verifyToken');
 
 // defining router
 const router = express.Router();
 
-// API routes
-
-// patient sample-test route
+// ######################## Endpoints ########################
 router.get('/test', patientTestRoute);
-router.post('/register', registerPatient);
-router.post('/login', loginPatient);
+router.get('/profile', verifyToken, viewPatient);   
 
 // export the Patient route
 module.exports = router;

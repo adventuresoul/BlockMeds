@@ -1,25 +1,37 @@
-const express = require('express');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // Middleware to verify the token
-function verifyToken(req, res, next){
-    const token = req.headers['authorization'].split(' ')[1];
-    // if not token 
-    if(!token){
+function verifyToken(req, res, next) {
+    const token = req.headers['authorization']?.split(' ')[1];
+    // If token is not provided
+    if (!token) {
         return res.status(403).send('Token is required, please login');
     }
-    // verify the token using jsonwebtoken library
+    // Verify the token using jsonwebtoken library
+    //console.log(token);
+    //console.log(process.env.SECRET_KEY);
     jwt.verify(token, process.env.SECRET_KEY, (err, decodedUser) => {
-        if(err){
-            return res.status(401).send('Invalid Token');
+        if (err) {
+            return res.status(401).json(err);
         }
-        // set req.user = decodeduser
-        req.user = decodedUser;
+        //console.log(decodedUser);
+        // Set req.user = decodedUser
+        if (decodedUser.roleId === 0) {
+            req.user = {
+                uniqueId: decodedUser.uniqueId,
+                userId: decodedUser.userId,
+                roleId: decodedUser.roleId
+            }
+        }
+        else {
+            req.user = {
+                userId: decodedUser.userId,
+                roleId: decodedUser.roleId
+            };
+        }
         next();
     });
 }
 
-module.exports = {
-    verifyToken
-};
+module.exports = { verifyToken };

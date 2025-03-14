@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/login', loginAdmin);
 router.post('/setSafeLimit', authenticateAdmin, setSafeLimit);
 router.get('/getSafeLimit/:drug', authenticateAdmin, getSafeLimit);
-router.get('/viewAllPrescriptions', authenticateAdmin, viewAllPrescriptions);
+router.get('/viewAllPrescriptions', viewAllPrescriptions);
 router.post('/resolveFlaggedPrescription', authenticateAdmin, resolveFlaggedPrescription);
 router.post('/addDiagnosis', authenticateAdmin, addDiagnosis);
 router.get('/findDoctorByEthPublicKey/:ethPubKey', authenticateAdmin, findDoctorByPublicKey);

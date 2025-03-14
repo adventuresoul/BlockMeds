@@ -177,6 +177,8 @@ const viewAllPrescriptions = asyncHandler(async (req, res) => {
     const changeStream = prescriptionModel.watch();
 
     changeStream.on("change", async () => {
+        /*This line registers an event listener on the changeStream object. 
+        It listens for any changes (insert/update/delete) in the prescriptionModel MongoDB collection.*/ 
         try {
             const updatedPrescriptions = await prescriptionModel.find();
             res.write(`data: ${JSON.stringify(updatedPrescriptions)}\n\n`);
@@ -226,7 +228,7 @@ const resolveFlaggedPrescription = asyncHandler(async (req, res) => {
 
         if (response.status === 200) {
             // Update the flagged status and resolution in the database
-            const updatedPrescription = await PrescriptionModel.findOneAndUpdate(
+            const updatedPrescription = await prescriptionModel.findOneAndUpdate(
                 { prescriptionId },
                 {
                     flagged: false, // Mark as no longer flagged

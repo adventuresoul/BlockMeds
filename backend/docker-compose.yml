@@ -21,3 +21,10 @@ services:
       - ./gatewayService/.env
     ports:
       - "5000:5000"
+
+  analytics:
+    image: blockMeds/analytics
+    env_file:
+      - ./analyticsService/.env
+    ports:
+      - "8000:8000"

@@ -1,5 +1,6 @@
 // PATIENT MODEL
 const mongoose = require('mongoose');
+const validator = require("validator");
 
 // patient collection schema
 const patientSchema = new mongoose.Schema({
@@ -11,7 +12,6 @@ const patientSchema = new mongoose.Schema({
     lastName: {
         type: String,
         required: true,
-        minlength: 2
     },
     dateOfBirth: {
         type: Date,
@@ -33,7 +33,7 @@ const patientSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function (value) {
-                return /^[0-9]{10}$/.test(value); // Validate phone number (10digits)
+                return validator.isMobilePhone(value);
             }
         }
     },
@@ -47,7 +47,7 @@ const patientSchema = new mongoose.Schema({
         lowercase: true, // Convert email to lowercase
         validate: {
             validator: function (value) {
-                return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value); // Basic email regex
+                return validator.isEmail(value);
             },
             message: "Invalid email format"
         }
@@ -62,13 +62,13 @@ const patientSchema = new mongoose.Schema({
         required: false,
         default: ''
     },
-    prescriptionHistory: {
-        type: [Object],
-        default: []
-    }
+    prescriptionHistory: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Prescription'  // Reference to the Prescription model
+    }]
 }, { timestamps: true }
 );
 
 // creating collection
 // It will create schema if it not exists
-module.exports = mongoose.Model.Patient || mongoose.model('Patient', patientSchema);
+module.exports = mongoose.models.Patient || mongoose.model('Patient', patientSchema);

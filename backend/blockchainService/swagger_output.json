@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "BlockMeds API",
-    "description": "BlockMeds contract service API",
-    "version": "1.0.0"
+  "title": "BlockMeds API",
+  "description": "A blockchain-powered prescription management API that enables secure and transparent handling of medical prescriptions, regulatory compliance, and transaction tracking.",
+  "version": "1.0.0"
   },
   "host": "localhost:3000",
   "basePath": "/",
@@ -19,6 +19,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "count": {
                   "type": "integer",
                   "example": 42
@@ -90,7 +94,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Prescription created successfully.",
             "schema": {
               "type": "object",
@@ -112,6 +116,7 @@
           },
           "400": {
             "description": "Invalid input or business logic error."
+            
           },
           "500": {
             "description": "Failed to create prescription."
@@ -119,10 +124,83 @@
         }
       }
     },
+    "/viewTransaction/{txHash}": {
+      "get": {
+        "summary": "View Transaction Details",
+        "description": "Fetches details of a blockchain transaction, including its receipt and block information.",
+        "parameters": [
+          {
+            "name": "txHash",
+            "in": "path",
+            "required": true,
+            "description": "Transaction hash of the blockchain transaction.",
+            "type": "string",
+            "example": "0x123abc456def789ghi012jkl345mno678pqr901stu234vwx567yz890"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction details retrieved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "transaction": {
+                  "type": "object",
+                  "description": "Transaction details",
+                  "example": {
+                    "hash": "0x123abc...",
+                    "from": "0xSenderAddress",
+                    "to": "0xRecipientAddress",
+                    "value": "1000000000000000000",
+                    "gas": 21000,
+                    "gasPrice": "20000000000",
+                    "blockNumber": 1234567
+                  }
+                },
+                "receipt": {
+                  "type": "object",
+                  "description": "Transaction receipt details",
+                  "example": {
+                    "transactionHash": "0x123abc...",
+                    "status": true,
+                    "gasUsed": 21000,
+                    "logs": []
+                  }
+                },
+                "block": {
+                  "type": "object",
+                  "description": "Block details containing the transaction",
+                  "example": {
+                    "number": 1234567,
+                    "timestamp": 1700000000,
+                    "miner": "0xMinerAddress",
+                    "gasUsed": 8000000,
+                    "transactionsCount": 200
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid transaction hash."
+          },
+          "404": {
+            "description": "Transaction or receipt not found."
+          },
+          "500": {
+            "description": "Failed to fetch transaction details."
+          }
+        }
+      }
+    },
     "/fulfillPrescription": {
       "post": {
         "summary": "Fulfill a Prescription",
-        "description": "Mark a prescription as fulfilled.",
+        "description": "Marks a prescription as fulfilled by a pharmacist, recording the transaction on the blockchain.",
         "parameters": [
           {
             "name": "body",
@@ -134,14 +212,17 @@
               "properties": {
                 "prescriptionId": {
                   "type": "string",
+                  "description": "The unique identifier of the prescription.",
                   "example": "1"
                 },
                 "pharmacistAddress": {
                   "type": "string",
+                  "description": "Ethereum address of the pharmacist fulfilling the prescription.",
                   "example": "0xPharmacistAddress"
                 },
                 "privateKey": {
                   "type": "string",
+                  "description": "Private key of the pharmacist for signing the transaction.",
                   "example": "PrivateKeyHere"
                 }
               }
@@ -158,76 +239,109 @@
                   "type": "boolean",
                   "example": true
                 },
+                "message": {
+                  "type": "string",
+                  "example": "Prescription fulfilled successfully"
+                },
                 "transactionHash": {
                   "type": "string",
+                  "description": "Hash of the transaction on the blockchain.",
                   "example": "0xTransactionHash"
                 },
                 "prescriptionId": {
                   "type": "string",
                   "example": "1"
+                },
+                "blockNumber": {
+                  "type": "integer",
+                  "description": "The block number in which the transaction was confirmed.",
+                  "example": 1234567
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid input."
+            "description": "Invalid input or gas estimation failure."
+          },
+          "404": {
+            "description": "Prescription not found."
           },
           "409": {
             "description": "Prescription already fulfilled."
           },
           "500": {
-            "description": "Failed to fulfill prescription."
+            "description": "Blockchain transaction failed."
           }
         }
       }
     },
     "/setSafeLimit": {
       "post": {
-        "summary": "Set Safe Limit",
-        "description": "Set the safe limit for a drug.",
+        "summary": "Set Safe Limit for a Drug",
+        "description": "Allows a regulatory authority to set the safe limit for a specific drug on the blockchain.",
         "parameters": [
           {
-            "name": "body",
             "in": "body",
+            "name": "body",
             "required": true,
             "schema": {
               "type": "object",
-              "required": ["drug", "safeLimit", "privateKey"],
               "properties": {
+                "regulatoryAuthorityAddress": {
+                  "type": "string",
+                  "description": "Ethereum address of the regulatory authority setting the limit.",
+                  "example": "0xAuthorityAddress"
+                },
                 "drug": {
                   "type": "string",
-                  "example": "Paracetamol"
+                  "description": "Name of the drug for which the limit is being set.",
+                  "example": "Morphine"
                 },
-                "safeLimit": {
+                "limit": {
                   "type": "integer",
+                  "description": "The maximum safe limit for the drug.",
                   "example": 100
-                },
-                "privateKey": {
-                  "type": "string",
-                  "example": "PrivateKeyHere"
                 }
-              }
+              },
+              "required": ["regulatoryAuthorityAddress", "drug", "limit"]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Safe limit set successfully.",
+            "description": "Safe limit successfully set.",
             "schema": {
               "type": "object",
               "properties": {
                 "success": {
                   "type": "boolean",
                   "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Safe limit for Morphine set to 100"
+                },
+                "transactionHash": {
+                  "type": "string",
+                  "description": "Transaction hash of the blockchain transaction.",
+                  "example": "0x123abc456def..."
+                },
+                "drug": {
+                  "type": "string",
+                  "example": "Morphine"
+                },
+                "limit": {
+                  "type": "integer",
+                  "example": 100
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid input."
+            "description": "Invalid request. Missing required fields."
           },
           "500": {
-            "description": "Failed to set safe limit."
+            "description": "Failed to set the safe limit due to a blockchain error."
           }
         }
       }
@@ -251,11 +365,15 @@
             "schema": {
               "type": "object",
               "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
                 "drug": {
                   "type": "string",
                   "example": "Paracetamol"
                 },
-                "safeLimit": {
+                "limit": {
                   "type": "integer",
                   "example": 100
                 }
@@ -271,28 +389,129 @@
         }
       }
     },
-    "/resolveFlaggedPrescription": {
-      "post": {
-        "summary": "Resolve Flagged Prescription",
-        "description": "Resolve a flagged prescription.",
+    "/viewPrescription/{prescriptionId}": {
+      "get": {
+        "summary": "View Prescription Details",
+        "description": "Retrieves details of a specific prescription from the blockchain.",
         "parameters": [
           {
-            "name": "body",
+            "name": "prescriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The unique identifier of the prescription.",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prescription details retrieved successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "prescription": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique prescription ID.",
+                      "example": "1"
+                    },
+                    "doctor": {
+                      "type": "string",
+                      "description": "Ethereum address of the prescribing doctor.",
+                      "example": "0xDoctorAddress"
+                    },
+                    "patientId": {
+                      "type": "string",
+                      "description": "Identifier of the patient.",
+                      "example": "12345"
+                    },
+                    "drug": {
+                      "type": "string",
+                      "description": "Name of the prescribed drug.",
+                      "example": "Paracetamol"
+                    },
+                    "dosage": {
+                      "type": "string",
+                      "description": "Dosage information of the drug.",
+                      "example": "500mg"
+                    },
+                    "quantity": {
+                      "type": "integer",
+                      "description": "Quantity of the drug prescribed.",
+                      "example": 10
+                    },
+                    "justification": {
+                      "type": "string",
+                      "description": "Justification for prescribing the drug.",
+                      "example": "For pain relief."
+                    },
+                    "fulfilled": {
+                      "type": "boolean",
+                      "description": "Indicates if the prescription has been fulfilled.",
+                      "example": false
+                    },
+                    "emergency": {
+                      "type": "boolean",
+                      "description": "Indicates if the prescription is for emergency use.",
+                      "example": true
+                    },
+                    "flagged": {
+                      "type": "boolean",
+                      "description": "Indicates if the prescription is flagged for review.",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request. Prescription ID is required."
+          },
+          "404": {
+            "description": "Prescription not found."
+          },
+          "500": {
+            "description": "Failed to retrieve prescription details."
+          }
+        }
+      }
+    },
+    "/resolveFlaggedPrescription": {
+      "post": {
+        "summary": "Resolve a Flagged Prescription",
+        "description": "Allows a regulatory authority to resolve a flagged prescription by approving or rejecting it.",
+        "parameters": [
+          {
             "in": "body",
+            "name": "body",
             "required": true,
             "schema": {
               "type": "object",
-              "required": ["prescriptionId", "privateKey"],
               "properties": {
+                "regulatoryAuthorityAddress": {
+                  "type": "string",
+                  "description": "Ethereum address of the regulatory authority resolving the prescription.",
+                  "example": "0xAuthorityAddress"
+                },
                 "prescriptionId": {
                   "type": "string",
-                  "example": "1"
+                  "description": "ID of the flagged prescription to resolve.",
+                  "example": "12345"
                 },
-                "privateKey": {
+                "resolution": {
                   "type": "string",
-                  "example": "PrivateKeyHere"
+                  "description": "Resolution of the flagged prescription",
+                  "example": "Reason satisfactory"
                 }
-              }
+              },
+              "required": ["regulatoryAuthorityAddress", "prescriptionId", "resolution"]
             }
           }
         ],
@@ -305,18 +524,60 @@
                 "success": {
                   "type": "boolean",
                   "example": true
+                },
+                "transactionHash": {
+                  "type": "string",
+                  "description": "Transaction hash of the blockchain transaction.",
+                  "example": "0x123abc456def..."
+                },
+                "prescriptionId": {
+                  "type": "string",
+                  "example": "12345"
+                },
+                "resolution": {
+                  "type": "boolean",
+                  "example": true
                 }
               }
             }
           },
-          "404": {
-            "description": "Prescription not found."
+          "400": {
+            "description": "Invalid request. Missing required fields."
           },
           "500": {
-            "description": "Failed to resolve flagged prescription."
+            "description": "Failed to resolve the flagged prescription due to a blockchain error."
+          }
+        }
+      }
+    },
+    "/regulatoryAuthority": {
+      "get": {
+        "summary": "Get Regulatory Authority Address",
+        "description": "Retrieves the Ethereum address of the regulatory authority.",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the regulatory authority address.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "regulatoryAuthority": {
+                  "type": "string",
+                  "description": "Ethereum address of the regulatory authority.",
+                  "example": "0xAuthorityAddress"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to retrieve the regulatory authority due to a blockchain error."
           }
         }
       }
     }
+
   }
 }

@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerFile = require('./swagger_output.json');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -25,6 +27,9 @@ app.use(cors());
 app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
+
+// Serve Swagger UI
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // connect to MongoDB
 const connectToMongoDB = require('./models/db_configuration');

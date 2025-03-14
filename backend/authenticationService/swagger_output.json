@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "BlockMeds API",
-    "description": "BlockMeds authentication service API",
+    "description": "Endpoint for user authentication in the BlockMeds platform, allowing Patients, Doctors, and Pharmacists to log in and obtain a secure access token.",
     "version": "1.0.0"
   },
   "host": "ip_address:5001",
@@ -24,7 +24,10 @@
     },
     "/login": {
       "post": {
-        "description": "Endpoint for user login",
+        "summary": "User Login",
+        "description": "Authenticate users and return a JWT token for session management.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "body",
@@ -36,15 +39,17 @@
                 "id": {
                   "type": "integer",
                   "example": 0,
-                  "description": "User class identifier: 0 for Patient, 1 for Doctor, 2 for Pharmacist"
+                  "description": "User role identifier: 0 for Patient, 1 for Doctor, 2 for Pharmacist."
                 },
                 "email": {
                   "type": "string",
-                  "example": "user@example.com"
+                  "example": "user@example.com",
+                  "description": "Registered email of the user."
                 },
                 "password": {
                   "type": "string",
-                  "example": "password123"
+                  "example": "password123",
+                  "description": "User's account password."
                 }
               },
               "required": ["id", "email", "password"]
@@ -57,25 +62,73 @@
             "schema": {
               "type": "object",
               "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Login successful"
+                },
                 "token": {
                   "type": "string",
-                  "example": "jwt-token"
+                  "example": "eyJhbGciOiJIUzI1..."
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request"
+            "description": "Bad request (missing fields or invalid user type)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "error": {
+                  "type": "string",
+                  "example": "Missing required fields"
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized (invalid credentials)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "error": {
+                  "type": "string",
+                  "example": "Invalid credentials"
+                }
+              }
+            }
           },
           "500": {
-            "description": "Internal server error"
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "error": {
+                  "type": "string",
+                  "example": "Login failed. Please try again later."
+                }
+              }
+            }
           }
         }
       }
-    },
+    }
+,
     "/register/patient": {
       "post": {
         "description": "Endpoint for patient registration",
@@ -90,7 +143,11 @@
                 "firstName": { "type": "string", "example": "John" },
                 "lastName": { "type": "string", "example": "Doe" },
                 "dateOfBirth": { "type": "string", "example": "2000-01-01" },
-                "gender": { "type": "string", "example": "male" },
+                "gender": { 
+                  "type": "string", 
+                  "enum": ["male", "female"], 
+                  "example": "male" 
+                },
                 "contactNumber": { "type": "string", "example": "1234567890" },
                 "email": { "type": "string", "example": "john.doe@example.com" },
                 "password": { "type": "string", "example": "password123" },
@@ -110,24 +167,44 @@
             "schema": {
               "type": "object",
               "properties": {
+                "success": { "type": "boolean", "example": true },
                 "message": { "type": "string", "example": "Patient registered successfully" },
                 "patient": {
                   "type": "object",
                   "properties": {
-                    "uniqueid": { "type": "string" },
-                    "firstName": { "type": "string" },
-                    "lastName": { "type": "string" },
-                    "email": { "type": "string" }
+                    "uniqueid": { "type": "string", "example": "12345" },
+                    "firstName": { "type": "string", "example": "John" },
+                    "lastName": { "type": "string", "example": "Doe" },
+                    "email": { "type": "string", "example": "john.doe@example.com" }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Invalid request" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Missing required fields" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Registration failed. Please try again later." }
+              }
+            }
+          }
         }
       }
-    },
+    }
+    ,
     "/register/doctor": {
       "post": {
         "description": "Endpoint for doctor registration",
@@ -152,7 +229,18 @@
                 "medicalLicenseId": { "type": "string", "example": "ML123456" },
                 "medicalLicenseCertificateUrl": { "type": "string", "example": "http://example.com/license.pdf" }
               },
-              "required": ["firstName", "lastName", "dateOfBirth", "gender", "contactNumber", "email", "password", "ethereumWalletAddress", "specialization", "medicalLicenseId"]
+              "required": [
+                "firstName",
+                "lastName",
+                "dateOfBirth",
+                "gender",
+                "contactNumber",
+                "email",
+                "password",
+                "ethereumWalletAddress",
+                "specialization",
+                "medicalLicenseId"
+              ]
             }
           }
         ],
@@ -162,20 +250,39 @@
             "schema": {
               "type": "object",
               "properties": {
+                "success": { "type": "boolean", "example": true },
                 "message": { "type": "string", "example": "Doctor registered successfully" },
                 "doctor": {
                   "type": "object",
                   "properties": {
-                    "firstName": { "type": "string" },
-                    "lastName": { "type": "string" },
-                    "email": { "type": "string" }
+                    "firstName": { "type": "string", "example": "Jane" },
+                    "lastName": { "type": "string", "example": "Smith" },
+                    "email": { "type": "string", "example": "jane.smith@example.com" }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Invalid request" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Missing required fields" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Registration failed. Please try again later." }
+              }
+            }
+          }
         }
       }
     },
@@ -194,25 +301,35 @@
                 "lastName": { "type": "string", "example": "Johnson" },
                 "dateOfBirth": { "type": "string", "example": "1990-11-15" },
                 "gender": { "type": "string", "example": "male" },
-                "contactNumer": { "type": "string", "example": "1234567890" },
+                "contactNumber": { "type": "string", "example": "1234567890" },
                 "email": { "type": "string", "example": "alex.johnson@example.com" },
                 "password": { "type": "string", "example": "securepass123" },
                 "ethereumWalletAddress": { "type": "string", "example": "0xDeF456..." },
                 "profileUrl": { "type": "string", "example": "http://example.com/pharmacist-profile.jpg" },
                 "pharmacyLicenseId": { "type": "string", "example": "PL789123" }
               },
-              "required": ["firstName", "lastName", "dateOfBirth", "gender", "contactNumer", "email", "password", "ethereumWalletAddress", "pharmacyLicenseId"]
+              "required": [
+                "firstName",
+                "lastName",
+                "dateOfBirth",
+                "gender",
+                "contactNumber",
+                "email",
+                "password",
+                "ethereumWalletAddress",
+                "pharmacyLicenseId"
+              ]
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Doctor registered successfully",
+            "description": "Pharmacist registered successfully",
             "schema": {
               "type": "object",
               "properties": {
-                "message": { "type": "string", "example": "Doctor registered successfully" },
-                "doctor": {
+                "message": { "type": "string", "example": "Pharmacist registered successfully" },
+                "pharmacist": {
                   "type": "object",
                   "properties": {
                     "firstName": { "type": "string" },
@@ -223,8 +340,26 @@
               }
             }
           },
-          "400": { "description": "Invalid request" },
-          "500": { "description": "Internal server error" }
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Missing required fields" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Registration failed. Please try again later." }
+              }
+            }
+          }
         }
       }
     }

@@ -7,3 +7,5 @@ backend/authenticationService/node_modules
 backend/authenticationService/.env
 smartContract/node_modules
 smartContract/build/*
+unitTests/__pycache__
+unitTests/.pytest_cache

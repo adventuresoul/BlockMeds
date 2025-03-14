@@ -1,5 +1,6 @@
 // Pharmacist model
 const mongoose = require('mongoose');
+const validator = require("validator");
 
 const PharmacistSchema = new mongoose.Schema({
     firstName: {
@@ -10,7 +11,6 @@ const PharmacistSchema = new mongoose.Schema({
     lastName: {
         type: String,
         required: true,
-        minlength: 2
     },
     dateOfBirth: {
         type: Date,
@@ -27,12 +27,12 @@ const PharmacistSchema = new mongoose.Schema({
         enum: ["male", "female"],
         required: true
     },
-    contactNumer: {
+    contactNumber: {
         type: String,
         required: true,
         validate: {
             validator: function (value) {
-                return /^[0-9]{10}$/.test(value); // Validate phone number (10digits)
+                return validator.isMobilePhone(value);
             }
         }
     },
@@ -42,7 +42,7 @@ const PharmacistSchema = new mongoose.Schema({
         lowercase: true, // Convert email to lowercase
         validate: {
             validator: function (value) {
-                return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value); // Basic email regex
+                return validator.isEmail(value);
             },
             message: "Invalid email format"
         }
@@ -65,4 +65,4 @@ const PharmacistSchema = new mongoose.Schema({
 
 // creating collection
 // It will create schema if it not exists
-module.exports = mongoose.Model.Pharmacist || mongoose.model('Pharmacist', PharmacistSchema);
+module.exports = mongoose.models.Pharmacist || mongoose.model('Pharmacist', PharmacistSchema);

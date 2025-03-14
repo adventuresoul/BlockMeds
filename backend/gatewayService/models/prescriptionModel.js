@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const prescriptionSchema = new mongoose.Schema({
     prescriptionId: {
-        type: Number,
-        required: true
+        type: String,
+        required: true,
+        unique: true
     },
     doctorId: {
         type: String,
@@ -14,7 +15,11 @@ const prescriptionSchema = new mongoose.Schema({
         required: true
     },
     patientId: {
-        type: Number,
+        type: String,
+        required: true
+    },
+    diagnosisId: {
+        type: String,
         required: true
     },
     drug: {
@@ -42,7 +47,8 @@ const prescriptionSchema = new mongoose.Schema({
         default: false
     },
     justification: {
-        type: String
+        type: String,
+        default: null
     },
     flagged: {
         type: Boolean,
@@ -53,14 +59,14 @@ const prescriptionSchema = new mongoose.Schema({
         default: Date.now
     },
     prescriptionCreationTxHash: {
-        type: String,
-        default: ""
+        type: String
     },
-    prescriptionFulfillmentTxHash: { // Fixed typo
-        type: String,
-        default: ""
+    prescriptionFulfillmentTxHash: {
+        type: String
     }
 });
 
+// Prevent re-declaration of the model if already registered
 const PrescriptionModel = mongoose.models.Prescription || mongoose.model('Prescription', prescriptionSchema);
+
 module.exports = PrescriptionModel;

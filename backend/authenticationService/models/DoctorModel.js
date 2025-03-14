@@ -1,5 +1,6 @@
 // Doctor Model
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const validator = require("validator");
 
 const DoctorSchema = new mongoose.Schema({
     firstName: {
@@ -10,7 +11,6 @@ const DoctorSchema = new mongoose.Schema({
     lastName: {
         type: String,
         required: true,
-        minlength: 2
     },
     dateOfBirth: {
         type: Date,
@@ -32,7 +32,7 @@ const DoctorSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function (value) {
-                return /^[0-9]{10}$/.test(value); // Validate phone number (10digits)
+                return validator.isMobilePhone(value);
             }
         }
     },
@@ -42,7 +42,7 @@ const DoctorSchema = new mongoose.Schema({
         lowercase: true, // Convert email to lowercase
         validate: {
             validator: function (value) {
-                return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value); // Basic email regex
+                return validator.isEmail(value);
             },
             message: "Invalid email format"
         }
@@ -56,7 +56,7 @@ const DoctorSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    profileUrl: {   // aws s3 link to image
+    profileUrl: {   
         type: String,
         required: false
     },
@@ -68,7 +68,7 @@ const DoctorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    medicalLicenseCertificateUrl: { // s3 link to certificate
+    medicalLicenseCertificateUrl: { 
         type: String,
         required: false,
         default: ''
@@ -78,4 +78,4 @@ const DoctorSchema = new mongoose.Schema({
 
 // creating collection
 // It will create schema if it not exists
-module.exports = mongoose.Model.Doctor || mongoose.model('Doctor', DoctorSchema);
+module.exports = mongoose.models.Doctor || mongoose.model('Doctor', DoctorSchema);

@@ -6,7 +6,7 @@ require('dotenv').config(); // Load environment variables
 const swaggerUi = require('swagger-ui-express');
 const swaggerFile = require('./swagger_output.json');
 
-
+// Instance of express app
 const app = express();
 
 // logger
@@ -33,7 +33,7 @@ app.use(express.json());
 
 
 // Connect to MongoDB
-const connectToMongoDB = require("./models/db_configuration");
+const connectToMongoDB = require("./config/db_configuration");
 connectToMongoDB();
 
 app.use((req, res, next) => {
@@ -42,6 +42,13 @@ app.use((req, res, next) => {
   //console.log("Request Body:", req.body); // Log incoming body
   next();
 });
+
+// global error handler
+app.use((err, req, res, next) => {
+  console.error("Unexpected Error:", err);
+  res.status(err.status || 500).json({ success: false, error: err.message || "Internal Server Error" });
+});
+
 
 // Router linking
 const authRoutes = require("./routes/authRoutes");

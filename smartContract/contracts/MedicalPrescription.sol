@@ -39,6 +39,8 @@ contract MedicalPrescription {
 
     // Getter function for safe limits
     function getSafeLimit(string memory _drug) public view returns (uint) {
+        uint safeLimit = safeLimits[_drug];
+        require(safeLimit > 0, "Safe limit for drug not set");
         return safeLimits[_drug];
     }
 
@@ -55,15 +57,18 @@ contract MedicalPrescription {
         bool flagged = false;
 
         uint safeLimit = safeLimits[_drug];
-        
+        require(safeLimit > 0, "Safe limit for this drug is not set.");
+
         if (_emergency) {
+            // check for inconsistencies in emergency flagging
+            require(_dosage > safeLimit, "Dosage is safe, no emergency flagging required");
+
             // Flag if emergency prescription exceeds safe limits
             if (safeLimit > 0 && _dosage > safeLimit) {
                 flagged = true;
                 emit PrescriptionFlagged(prescriptionCount, "Emergency prescription exceeds safe limit.");
             }
         } else {
-            require(safeLimit > 0, "Safe limit for this drug is not set.");
             require(_dosage <= safeLimit, "Dosage exceeds safe limit.");
         }
 

@@ -10,15 +10,13 @@ app.use(express.json());
 const API_KEY = process.env.BLOCKCHAIN_SERVICE_API_KEY;
 
 const apiKeyMiddleware = (req, res, next) => {
-    const apiKey = req.headers['authorization'];
-    //console.log(`Request URL: ${req.url}`);
-    //console.log(`Authorization Header: ${apiKey}`);
-    
+    //console.log(req.url);
     // if req.url is /docs, skip the API key check
-    if (req.url === '/docs') {
+    if (req.url.startsWith('/docs/')) {
         console.log("Skipping API key check for /docs route");
         return next();
     } else {
+        const apiKey = req.headers['authorization'];
         if (!apiKey || apiKey !== `${API_KEY}`) {
             console.log("Invalid or missing API key");
             return res.status(403).json({ error: 'Forbidden: Invalid API Key' });
@@ -27,8 +25,23 @@ const apiKeyMiddleware = (req, res, next) => {
     }  
 };
 
+// logger
+const loggermiddleware = (req, res, next) => {
+    const start = Date.now(); // Start timestamp
+    
+    res.on('finish', () => {
+      const end = Date.now(); // End timestamp
+      const duration = end - start;
+      const currentTimestamp = new Date().toISOString();
+      const status = res.statusCode;
+      console.log(`[${currentTimestamp}] ${req.method} ${req.url} ${status} - ${duration}ms`);
+    });
+    
+    next();
+}
+
 // Apply middleware to all routes
-app.use(apiKeyMiddleware);
+app.use(apiKeyMiddleware, loggermiddleware);
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);
@@ -46,6 +59,12 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send("Something went wrong!");
 });
+
+// global error handler
+app.use((err, req, res, next) => {
+    console.error("Unexpected Error:", err);
+    res.status(err.status || 500).json({ success: false, error: err.message || "Internal Server Error" });
+  });
 
 // Start the server
 const port = process.env.PORT;

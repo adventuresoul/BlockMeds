@@ -9,6 +9,6 @@ smartContract/node_modules
 smartContract/build/*
 unitTests/__pycache__
 unitTests/.pytest_cache
-analyticsService/node_modules
-analyticsService/.env
+backend/analyticsService/node_modules
+backend/analyticsService/.env
 sampleData/
